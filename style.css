@@ -1,0 +1,48 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #ffffff;
+}
+
+.container {
+    text-align: center;
+    width: 100%;
+}
+
+h1 {
+    color: #1a1a1a;
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333399;
+}
+
+.bus-image {
+    max-width: 30%;
+    height: auto;
+}
+
+.schedule-button {
+        background-color: #1a4ba5;
+        color: white;
+        padding: 15px 30px;
+        font-size: 1em;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        margin-top: 20px;
+        width: 70%;
+}
+
+.schedule-button:hover {
+    background-color: #6666cc;
+}

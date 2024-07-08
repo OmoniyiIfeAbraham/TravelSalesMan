@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traveling Salesman Problem</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #282c34;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #app {
+            text-align: center;
+            background-color: #1e2126;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #61dafb;
+        }
+
+        button {
+            background-color: #61dafb;
+            color: #1e2126;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #21a1f1;
+        }
+
+        svg {
+            border: 2px solid #61dafb;
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .grid line {
+            stroke: #ddd;
+            stroke-opacity: 0.8;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #61dafb;
+        }
+
+        .path-array {
+            font-weight: bold;
+            color: #21a1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Traveling Salesman Problem</h1>
+        <p>Click on the graph to add points. The first point is the starting point (in red).</p>
+        <svg width="600" height="600"></svg>
+        <button id="startAlgorithm">Start Algorithm</button>
+        <div class="result"></div>
+    </div>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        const svg = d3.select("svg");
+        const width = +svg.attr("width");
+        const height = +svg.attr("height");
+        const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create a grid
+        const gridData = d3.range(0, Math.max(innerWidth, innerHeight), 20);
+        const grid = g.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data(gridData)
+            .enter().append("line")
+            .attr("x1", d => d)
+            .attr("y1", 0)
+            .attr("x2", d => d)
+            .attr("y2", innerHeight)
+            .attr("stroke", "#ddd")
+            .attr("stroke-opacity", 0.8)
+            .attr("stroke-width", 1);
+
+        g.append("g")
+            .attr("class", "grid")
+            .selectAll("line")
+            .data(gridData)
+            .enter().append("line")
+            .attr("x1", 0)
+            .attr("y1", d => d)
+            .attr("x2", innerWidth)
+            .attr("y2", d => d)
+            .attr("stroke", "#ddd")
+            .attr("stroke-opacity", 0.8)
+            .attr("stroke-width", 1);
+
+        let points = [];
+
+        svg.on("click", function (event) {
+            const coords = d3.pointer(event);
+            const point = {
+                id: points.length,
+                x: coords[0] - margin.left,
+                y: coords[1] - margin.top
+            };
+            points.push(point);
+            drawGraph();
+        });
+
+        document.getElementById("startAlgorithm").addEventListener("click", startAlgorithm);
+
+        function drawGraph() {
+            g.selectAll(".point").remove();
+            g.selectAll(".label").remove();
+            g.selectAll(".path").remove();
+
+            g.selectAll("circle")
+                .data(points)
+                .enter().append("circle")
+                .attr("class", "point")
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y)
+                .attr("r", 5)
+                .attr("fill", (d, i) => i === 0 ? "red" : "black");
+
+            g.selectAll("text")
+                .data(points)
+                .enter().append("text")
+                .attr("class", "label")
+                .attr("x", d => d.x + 10)
+                .attr("y", d => d.y)
+                .text(d => d.id);
+        }
+
+        async function startAlgorithm() {
+            if (points.length < 2) return;
+            let unvisited = [...points];
+            let path = [];
+            let current = unvisited.shift();
+            path.push(current);
+
+            while (unvisited.length > 0) {
+                let nearest = findNearestNeighbor(current, unvisited);
+                path.push(nearest);
+                unvisited = unvisited.filter(p => p.id !== nearest.id);
+                current = nearest;
+                drawPath(path);
+                await sleep(1000); // Wait for 1 second before drawing the next step
+            }
+
+            // Return to the starting point
+            path.push(points[0]);
+            drawPath(path);
+
+            document.querySelector(".result").innerHTML = `Path: <span class="path-array">[${path.map(p => p.id).join(", ")}]</span>`;
+        }
+
+        function findNearestNeighbor(current, unvisited) {
+            let nearest = null;
+            let minDist = Infinity;
+            unvisited.forEach(p => {
+                let dist = Math.sqrt(Math.pow(p.x - current.x, 2) + Math.pow(p.y - current.y, 2));
+                if (dist < minDist) {
+                    nearest = p;
+                    minDist = dist;
+                }
+            });
+            return nearest;
+        }
+
+        function drawPath(path) {
+            g.selectAll(".path").remove();
+            for (let i = 0; i < path.length - 1; i++) {
+                g.append("line")
+                    .attr("class", "path")
+                    .attr("x1", path[i].x)
+                    .attr("y1", path[i].y)
+                    .attr("x2", path[i + 1].x)
+                    .attr("y2", path[i + 1].y)
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 2);
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+
+</html>
