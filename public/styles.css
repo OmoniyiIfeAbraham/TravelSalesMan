@@ -1,0 +1,55 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #282c34;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+#app {
+  text-align: center;
+  background-color: #1e2126;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+h1 {
+  color: #61dafb;
+}
+button {
+  background-color: #61dafb;
+  color: #1e2126;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+button:hover {
+  background-color: #21a1f1;
+}
+svg {
+  border: 2px solid #61dafb;
+  margin-top: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+}
+.grid line {
+  stroke: #ddd;
+  stroke-opacity: 0.8;
+}
+.result {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #61dafb;
+}
+.path-array {
+  font-weight: bold;
+  color: #21a1f1;
+}
